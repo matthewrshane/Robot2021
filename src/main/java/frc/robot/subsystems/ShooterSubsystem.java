@@ -77,4 +77,14 @@ public class ShooterSubsystem extends SubsystemBase implements Loggable {
   public void toggleSolenoid() {
     m_doubleSolenoidShooter.toggle();
   }
+
+  /**
+   * Gets the value of the double solenoid as a string, rather than the Value enum.
+   *
+   * @return The name of the enum value corresponding to the solenoid state.
+   */
+  @Log(name = "Shooter Solenoid", width = 2, height = 1, rowIndex = 1, columnIndex = 0)
+  public String getSolenoidValue() {
+    return m_doubleSolenoidShooter.get().name();
+  }
 }

@@ -41,17 +41,25 @@ public class VisionSubsystem extends SubsystemBase implements Loggable {
     }
   }
 
+  /** 
+   * Gets the latest result from the PhotonVision pipeline. This is called from other methods and should never need to be used on its own. 
+   * @return the latest pipeline result.
+  */
   private PhotonPipelineResult getLatestResult() {
     return m_camera.getLatestResult();
   }
 
+  /** 
+   * Checks if there are targets on screen. This MUST be called and checked before accessing any of the targets to not possibly throw a NullPointerException.
+   * @return whether the camera has detected target(s) or not.
+  */
   public boolean hasTargets() {
     return getLatestResult().hasTargets();
   }
 
   /**
-   * Gets the 
-   * @return
+   * Gets the best target from the camera, which should always be the goal, given that we are looking at it.
+   * @return the goal, anything else that the camera determines to be a target if the goal is not on screen, or null if there are no targets.
    */
   public PhotonTrackedTarget getTarget() {
     return hasTargets() ? getLatestResult().getBestTarget() : null;
@@ -59,16 +67,24 @@ public class VisionSubsystem extends SubsystemBase implements Loggable {
 
   /**
    * Gets the rotation from the front-center of the robot, where the camera is, to the target. Positive values indicate a counter-clockwise rotation, to the left.
-   * @return the rotation, or null if there is no tracked target.
+   * @return the rotation, in degrees, or null if there is no tracked target.
    */
   public double getRotationToTarget() {
     return hasTargets() ? getTarget().getYaw() : null;
   }
 
+  /**
+   * Gets the pitch from the front-center of the robot, where the camera is, to the target. Positive values indicate the target is above the camera.
+   * @return the pitch, in degrees, or null if there is no tracked target.
+   */
   public double getPitchToTarget() {
     return hasTargets() ? getTarget().getPitch() : null;
   }
 
+  /**
+   * Gets the calculated distance to the target.
+   * @return the distance, in meters, or null if there is no tracked target.
+   */
   public double getDistanceToTarget() {
     return PhotonUtils.calculateDistanceToTargetMeters(VisionConstants.kHeightCameraLow, VisionConstants.kHeightTarget, Units.degreesToRadians(VisionConstants.kPitchCameraLow), Units.degreesToRadians(getPitchToTarget()));
   }
