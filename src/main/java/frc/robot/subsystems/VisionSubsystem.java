@@ -35,10 +35,7 @@ public class VisionSubsystem extends SubsystemBase implements Loggable {
 
   /** Initializes the vision subsystem. */
   public VisionSubsystem() {
-    // If we're runnning on the real robot, enable the camera.
-    if (RobotBase.isReal()) {
-      // TODO: Not necessary?
-    }
+    
   }
 
   /** 
@@ -79,6 +76,14 @@ public class VisionSubsystem extends SubsystemBase implements Loggable {
    */
   public double getPitchToTarget() {
     return hasTargets() ? getTarget().getPitch() : null;
+  }
+
+  /**
+   * Gets the calculated area of the target, out of 100.
+   * @return the area, in percent of total area, or null if there is no tracked target.
+   */
+  public double getAreaOfTarget() {
+    return hasTargets() ? getTarget().getArea() : null;
   }
 
   /**
