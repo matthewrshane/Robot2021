@@ -9,7 +9,6 @@ import org.photonvision.PhotonPipelineResult;
 import org.photonvision.PhotonTrackedTarget;
 import org.photonvision.PhotonUtils;
 
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.VisionConstants;
@@ -55,7 +54,7 @@ public class VisionSubsystem extends SubsystemBase implements Loggable {
   }
 
   /**
-   * Gets the best target from the camera, which should always be the goal, given that we are looking at it.
+   * Gets the best (largest) target from the camera, given that we are looking at it.
    * @return the goal, anything else that the camera determines to be a target if the goal is not on screen, or null if there are no targets.
    */
   public PhotonTrackedTarget getTarget() {
