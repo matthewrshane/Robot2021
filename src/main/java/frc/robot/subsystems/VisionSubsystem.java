@@ -63,7 +63,7 @@ public class VisionSubsystem extends SubsystemBase implements Loggable {
   }
 
   /**
-   * Gets the rotation from the front-center of the robot, where the camera is, to the target. Positive values indicate a counter-clockwise rotation, to the left.
+   * Gets the rotation from the front-center of the robot, where the camera is, to the largest target. Positive values indicate a counter-clockwise rotation, to the left.
    * @return the rotation, in degrees, or null if there is no tracked target.
    */
   public double getRotationToTarget() {
@@ -71,7 +71,7 @@ public class VisionSubsystem extends SubsystemBase implements Loggable {
   }
 
   /**
-   * Gets the pitch from the front-center of the robot, where the camera is, to the target. Positive values indicate the target is above the camera.
+   * Gets the pitch from the front-center of the robot, where the camera is, to the largest target. Positive values indicate the target is above the camera.
    * @return the pitch, in degrees, or null if there is no tracked target.
    */
   public double getPitchToTarget() {
@@ -79,7 +79,7 @@ public class VisionSubsystem extends SubsystemBase implements Loggable {
   }
 
   /**
-   * Gets the calculated area of the target, out of 100.
+   * Gets the calculated area of the largest target, out of 100.
    * @return the area, in percent of total area, or null if there is no tracked target.
    */
   public double getAreaOfTarget() {
@@ -87,7 +87,7 @@ public class VisionSubsystem extends SubsystemBase implements Loggable {
   }
 
   /**
-   * Gets the calculated distance to the target.
+   * Gets the calculated distance to the largest target.
    * @return the distance, in meters, or null if there is no tracked target.
    */
   public double getDistanceToTarget() {
