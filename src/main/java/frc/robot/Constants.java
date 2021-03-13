@@ -98,17 +98,45 @@ public final class Constants {
     public static final double kSpeedNormal = 1.0;
   }
 
-   /** Constants for the Vision subsystem. */
-   public static final class VisionConstants {
-    /** The height, in meters, of the camera from the field in the low shooting mode. Robot measurements used: 28.5in to screw holes + 1.75in to the camera = 30.25in */
+  /** Constants for the Vision subsystem. */
+  public static final class VisionConstants {
+    /**
+     * The height, in meters, of the camera from the field in the low shooting mode. Robot
+     * measurements used:
+     *
+     * <ul>
+     *   <li>28.5in to screw holes + 1.75in to the camera = 30.25in
+     */
     public static final double kHeightCameraLow = Units.inchesToMeters(30.25);
-    /** The height, in meters, of the camera from the field in the high shooting mode. Robot measurements used: 34.25 in to screw holes + 1.75in to the camera = 36in */
+    /**
+     * The height, in meters, of the camera from the field in the high shooting mode. Robot
+     * measurements used:
+     *
+     * <ul>
+     *   <li>34.25 in to screw holes + 1.75in to the camera = 36in
+     */
     public static final double kHeightCameraHigh = Units.inchesToMeters(36);
-    /** The height, in meters, of the top of the target, or the center of the goal, from the field. Field measurements used: 8ft 2 1/4in (98.25in) */
+    /**
+     * The height, in meters, of the top of the target, or the center of the goal, from the field.
+     * Field measurements used:
+     *
+     * <ul>
+     *   <li>8ft 2 1/4in (98.25in)
+     */
     public static final double kHeightTarget = Units.inchesToMeters(98.25);
-    /** The pitch, in degrees, of the camera in the low shooting mode. Robot measurements used: 18 deg arm - 28deg camera = -10deg*/
+    /**
+     * The pitch, in degrees, of the camera in the low shooting mode. Robot measurements used:
+     *
+     * <ul>
+     *   <li>18 deg arm - 28deg camera = -10deg
+     */
     public static final double kPitchCameraLow = -10;
-    /** The pitch, in degrees, of the camera in the high shooting mode. Robot measurements used: 31 deg arm - 28deg camera = 3deg*/
+    /**
+     * The pitch, in degrees, of the camera in the high shooting mode. Robot measurements used:
+     *
+     * <ul>
+     *   <li>31 deg arm - 28deg camera = 3deg
+     */
     public static final double kPitchCameraHigh = 3;
   }
 }
