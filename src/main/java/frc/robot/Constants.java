@@ -125,6 +125,14 @@ public final class Constants {
      */
     public static final double kHeightTarget = Units.inchesToMeters(98.25);
     /**
+     * The height, in meters, of the center of the powercell from the field. Field measurements
+     * used:
+     *
+     * <ul>
+     *   <li>7in diameter powercell
+     */
+    public static final double kHeightPowercell = Units.inchesToMeters(3.5);
+    /**
      * The pitch, in degrees, of the camera in the low shooting mode. Robot measurements used:
      *
      * <ul>
@@ -138,5 +146,9 @@ public final class Constants {
      *   <li>31 deg arm - 28deg camera = 3deg
      */
     public static final double kPitchCameraHigh = 3;
+    /** The tolerance, in degrees, of the robot when tracking the powercell. */
+    public static final double kRotationTolerance = 1;
+    /** The closest distance, in meters, that the robot can be when tracking the powercell. */
+    public static final double kDistancePowercellMinimum = Units.feetToMeters(5);
   }
 }
