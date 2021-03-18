@@ -276,4 +276,13 @@ public class DrivetrainSubsystem extends SubsystemBase implements Loggable {
   public double getHeading() {
     return -Math.IEEEremainder(m_gyro.getAngle(), 360);
   }
+
+  /**
+   * Gets the heading of the robot, as reported by the gyroscope.
+   *
+   * @return the angle of the robot
+   */
+  public double getGyroHeading() {
+    return m_gyro.getAngle() % 360;
+  }
 }

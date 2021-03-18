@@ -23,7 +23,6 @@ import org.photonvision.PhotonUtils;
  * with coprocessors to provide object tracking data from the other camera.
  */
 public class VisionSubsystem extends SubsystemBase implements Loggable {
-
   // Photonvision Camera
   private PhotonCamera m_camera = new PhotonCamera("longwood564");
 
