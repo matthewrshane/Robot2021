@@ -4,7 +4,6 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
@@ -14,7 +13,7 @@ import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 
 /** Drives the robot towards the closest powercell for use in the Galactic Search challenge. */
-public class DriveToPowercellCommand extends CommandBase {
+public class Turn180Command extends CommandBase {
   // Subsystems
 
   private final DrivetrainSubsystem m_drivetrainSubsystem;
@@ -27,8 +26,7 @@ public class DriveToPowercellCommand extends CommandBase {
   double m_initAngle = 0;
 
   /** Initializes this command. */
-  public DriveToPowercellCommand(
-      DrivetrainSubsystem drivetrainSubsystem, VisionSubsystem visionSubsystem) {
+  public Turn180Command(DrivetrainSubsystem drivetrainSubsystem, VisionSubsystem visionSubsystem) {
     m_drivetrainSubsystem = drivetrainSubsystem;
     m_visionSubsystem = visionSubsystem;
 
@@ -41,37 +39,13 @@ public class DriveToPowercellCommand extends CommandBase {
     // Set the neutral mode of the drive motors to break, for more responsiveness.
     m_drivetrainSubsystem.setNeutralMode(NeutralMode.Brake);
 
-    // Check if there is a target detected.
-    if (!m_visionSubsystem.hasTargets()) return;
-
-    // Locate the nearest powercell.
-    double rotationToTarget = m_visionSubsystem.getRotationToTarget();
-
-    // Check if we're facing the nearest powercell.
-    if (Math.abs(rotationToTarget) >= VisionConstants.kRotationTolerance) {
-      // Turn towards the nearest powercell.
+    // Turn 180 degrees
+    double angleRemaining = m_drivetrainSubsystem.getGyroHeading() - (m_initAngle + 180);
+    if (Math.abs(angleRemaining) >= VisionConstants.kRotationTolerance) {
       m_drivetrainSubsystem.arcadeDrive(
-          0, m_visionSubsystem.getNonlinearRotationalSpeed(rotationToTarget));
+          0, m_visionSubsystem.getNonlinearRotationalSpeed(angleRemaining));
       return;
     }
-
-    // Get the distance to the powercell.
-    double distanceToTarget = m_visionSubsystem.getDistanceToTarget();
-
-    // Check if the robot is close to the powercell.
-    if (distanceToTarget >= VisionConstants.kDistancePowercellMinimum) {
-      // Drive forward towards the nearest powercell.
-      m_drivetrainSubsystem.arcadeDrive(
-          m_visionSubsystem.getNonlinearSpeed(distanceToTarget, Units.feetToMeters(5)), 0);
-      return;
-    }
-
-    // // Turn 180 degrees
-    // double angleRemaining = m_drivetrainSubsystem.getGyroHeading() - (m_initAngle + 180);
-    // if (Math.abs(angleRemaining) >= VisionConstants.kRotationTolerance) {
-    //   m_drivetrainSubsystem.arcadeDrive(
-    //       0, m_visionSubsystem.getNonlinearRotationalSpeed(angleRemaining));
-    // }
 
     m_finished = true;
   }

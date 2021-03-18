@@ -109,4 +109,13 @@ public class DrivetrainSubsystem extends SubsystemBase implements Loggable {
   public void setDriveSpeed(double speed) {
     m_differentialDrive.setMaxOutput(speed);
   }
+
+  /**
+   * Gets the heading of the robot, as reported by the gyroscope.
+   *
+   * @return the angle of the robot
+   */
+  public double getGyroHeading() {
+    return m_gyro.getAngle() % 360;
+  }
 }

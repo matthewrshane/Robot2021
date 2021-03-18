@@ -8,7 +8,6 @@ import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import io.github.oblarg.oblog.Loggable;
-import io.github.oblarg.oblog.annotations.Log;
 
 import frc.robot.Constants.VisionConstants;
 
@@ -24,13 +23,13 @@ import org.photonvision.PhotonUtils;
  * with coprocessors to provide object tracking data from the other camera.
  */
 public class VisionSubsystem extends SubsystemBase implements Loggable {
-  @Log.CameraStream(
-      name = "Camera",
-      width = 7,
-      height = 6,
-      rowIndex = 0,
-      columnIndex = 0,
-      tabName = "Driver View")
+  // @Log.CameraStream(
+  //     name = "Camera",
+  //     width = 7,
+  //     height = 6,
+  //     rowIndex = 0,
+  //     columnIndex = 0,
+  //     tabName = "Driver View")
   // Photonvision Camera
   private PhotonCamera m_camera = new PhotonCamera("longwood564");
 
@@ -111,11 +110,13 @@ public class VisionSubsystem extends SubsystemBase implements Loggable {
 
   /** Does stuff (I think) */
   public double getNonlinearSpeed(double distance, double minimumDistance) {
-    return 1D / (1 + Math.exp(-distance + (minimumDistance * 1.6)));
+    return 0.5 * (1D / (1 + Math.exp(-distance + (minimumDistance * 1.6))));
   }
 
   /** Also stuff (I think) */
   public double getNonlinearRotationalSpeed(double rotation) {
-    return (2D / (1 + Math.exp(-(rotation / 45)))) - 1D;
+    boolean sign = rotation >= 0;
+    rotation = Math.abs(rotation);
+    return (sign ? 1 : -1) * (1D / (1 + Math.exp(-(rotation - 90) / 30)));
   }
 }

@@ -12,7 +12,6 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandGroupBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 
 import io.github.oblarg.oblog.annotations.Log;
@@ -24,6 +23,7 @@ import frc.robot.Constants.ShooterConstants;
 import frc.robot.commands.AutoInitCommand;
 import frc.robot.commands.DisabledInitCommand;
 import frc.robot.commands.TeleopInitCommand;
+import frc.robot.commands.Turn180Command;
 import frc.robot.driverinput.F310Controller;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -47,7 +47,10 @@ public class RobotContainer {
       new AutoInitCommand(m_drivetrainSubsystem, m_shooterSubsystem);
   private final TeleopInitCommand m_teleopInitCommand =
       new TeleopInitCommand(m_drivetrainSubsystem, m_shooterSubsystem);
-  private final PrintCommand m_autoCommand = new PrintCommand("Autonomous is not implemented yet!");
+  //   private final DriveToPowercellCommand m_autoCommand =
+  //       new DriveToPowercellCommand(m_drivetrainSubsystem, m_visionSubsystem);
+  private final Turn180Command m_autoCommand =
+      new Turn180Command(m_drivetrainSubsystem, m_visionSubsystem);
 
   // Driver Input
 
