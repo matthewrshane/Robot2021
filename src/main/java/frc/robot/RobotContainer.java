@@ -48,7 +48,7 @@ public class RobotContainer {
   private final TeleopInitCommand m_teleopInitCommand =
       new TeleopInitCommand(m_drivetrainSubsystem, m_shooterSubsystem);
   //   private final DriveToPowercellCommand m_autoCommand =
-  //       new DriveToPowercellCommand(m_drivetrainSubsystem, m_visionSubsystem);
+  //       new DriveToPowercellCommand(m_drivetrainSubsystem, m_intakeSubsystem, m_visionSubsystem);
   private final Turn180Command m_autoCommand =
       new Turn180Command(m_drivetrainSubsystem, m_visionSubsystem);
 
