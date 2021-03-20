@@ -23,13 +23,7 @@ import org.photonvision.PhotonUtils;
  * with coprocessors to provide object tracking data from the other camera.
  */
 public class VisionSubsystem extends SubsystemBase implements Loggable {
-  // @Log.CameraStream(
-  //     name = "Camera",
-  //     width = 7,
-  //     height = 6,
-  //     rowIndex = 0,
-  //     columnIndex = 0,
-  //     tabName = "Driver View")
+
   // Photonvision Camera
   private PhotonCamera m_camera = new PhotonCamera("longwood564");
 
@@ -108,12 +102,25 @@ public class VisionSubsystem extends SubsystemBase implements Loggable {
         Units.degreesToRadians(getPitchToTarget()));
   }
 
-  /** Does stuff (I think) */
+  /**
+   * Gets a non-linear curve for speed based off the current distance and the minimum distance we
+   * would like to be from the target.
+   *
+   * @param distance The current distance from the target, in meters.
+   * @param minimumDistance The minimum distance the robot should approach the target, in meters.
+   * @return the speed, from 0.0 to 1.0, that the robot should travel at.
+   */
   public double getNonlinearSpeed(double distance, double minimumDistance) {
     return 0.5 * (1D / (1 + Math.exp(-distance + (minimumDistance * 1.6))));
   }
 
-  /** Also stuff (I think) */
+  /**
+   * Gets a non-linear curve for rotational speed based on the current angle offset we are to where
+   * we would like to be facing.
+   *
+   * @param rotation The current offset, in degrees, from the angle we would like to be facing.
+   * @return the rotational speed, from 0.0 to 1.0, that the robot should turn at.
+   */
   public double getNonlinearRotationalSpeed(double rotation) {
     boolean sign = rotation >= 0;
     rotation = Math.abs(rotation);
