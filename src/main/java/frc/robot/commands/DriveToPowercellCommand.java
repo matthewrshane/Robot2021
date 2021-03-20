@@ -9,71 +9,164 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 
+import frc.robot.Constants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.DrivetrainSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 
 /** Drives the robot towards the closest powercell for use in the Galactic Search challenge. */
 public class DriveToPowercellCommand extends CommandBase {
-  // Subsystems
 
+  // State variables
+  public static final int m_STATE_SEARCHING = 0;
+  public static final int m_STATE_TURNING = 1;
+  public static final int m_STATE_DRIVING_TOWARDS_POWERCELL = 2;
+  public static final int m_STATE_TURN_180 = 3;
+  public static final int m_STATE_GRABBING_POWERCELL = 4;
+  public static final int m_STATE_TURNING_TOWARDS_END = 5;
+  public static final int m_STATE_DRIVING_TOWARDS_END = 6;
+  public static final int m_STATE_FINISHED = 7;
+
+  // Subsystems
   private final DrivetrainSubsystem m_drivetrainSubsystem;
+  private final IntakeSubsystem m_intakeSubsystem;
   private final VisionSubsystem m_visionSubsystem;
 
-  // Boolean
-  boolean m_finished = false;
+  // State of the command
+  int m_state;
+
+  // Ball count
+  int m_ballCount;
+
+  // Initial time for intaking the powercell
+  long m_intakeInitTime;
 
   // Initial angle for when turning 180 degrees
-  double m_initAngle = 0;
+  double m_initAngle;
+
+  // Initial angle for when the command is executed
+  double m_absoluteInitAngle;
 
   /** Initializes this command. */
   public DriveToPowercellCommand(
-      DrivetrainSubsystem drivetrainSubsystem, VisionSubsystem visionSubsystem) {
+      DrivetrainSubsystem drivetrainSubsystem,
+      IntakeSubsystem intakeSubsystem,
+      VisionSubsystem visionSubsystem) {
     m_drivetrainSubsystem = drivetrainSubsystem;
+    m_intakeSubsystem = intakeSubsystem;
     m_visionSubsystem = visionSubsystem;
 
     addRequirements(drivetrainSubsystem);
+    addRequirements(m_intakeSubsystem);
+    addRequirements(m_visionSubsystem);
   }
 
-  /** This method is run when the command is executed. */
+  /** This method is run once when the command is first executed. */
+  @Override
+  public void initialize() {
+    m_state = m_STATE_SEARCHING;
+    m_ballCount = 0;
+    m_initAngle = 0;
+    m_absoluteInitAngle = m_drivetrainSubsystem.getGyroHeading();
+  }
+
+  /** This method is run continously while the command is executed. */
   @Override
   public void execute() {
     // Set the neutral mode of the drive motors to break, for more responsiveness.
     m_drivetrainSubsystem.setNeutralMode(NeutralMode.Brake);
 
-    // Check if there is a target detected.
-    if (!m_visionSubsystem.hasTargets()) return;
-
-    // Locate the nearest powercell.
-    double rotationToTarget = m_visionSubsystem.getRotationToTarget();
-
-    // Check if we're facing the nearest powercell.
-    if (Math.abs(rotationToTarget) >= VisionConstants.kRotationTolerance) {
-      // Turn towards the nearest powercell.
-      m_drivetrainSubsystem.arcadeDrive(
-          0, m_visionSubsystem.getNonlinearRotationalSpeed(rotationToTarget));
-      return;
+    if (m_state == m_STATE_SEARCHING || m_state == m_STATE_TURNING) {
+      // Check if there is a target detected, if not, slowly turn until we find one.
+      if (!m_visionSubsystem.hasTargets()) {
+        m_drivetrainSubsystem.arcadeDrive(0, 0.3);
+        m_state = m_STATE_SEARCHING;
+        return;
+      } else m_state = m_STATE_TURNING;
     }
 
-    // Get the distance to the powercell.
-    double distanceToTarget = m_visionSubsystem.getDistanceToTarget();
+    if (m_state == m_STATE_TURNING) {
+      // Locate the nearest powercell.
+      double rotationToTarget = m_visionSubsystem.getRotationToTarget();
 
-    // Check if the robot is close to the powercell.
-    if (distanceToTarget >= VisionConstants.kDistancePowercellMinimum) {
-      // Drive forward towards the nearest powercell.
-      m_drivetrainSubsystem.arcadeDrive(
-          m_visionSubsystem.getNonlinearSpeed(distanceToTarget, Units.feetToMeters(5)), 0);
-      return;
+      // Check if we're facing the nearest powercell.
+      if (Math.abs(rotationToTarget) >= VisionConstants.kRotationTolerance) {
+        // Turn towards the nearest powercell.
+        m_drivetrainSubsystem.arcadeDrive(
+            0, m_visionSubsystem.getNonlinearRotationalSpeed(rotationToTarget));
+        m_state = m_STATE_TURNING;
+        return;
+      } else m_state = m_STATE_DRIVING_TOWARDS_POWERCELL;
     }
 
-    // // Turn 180 degrees
-    // double angleRemaining = m_drivetrainSubsystem.getGyroHeading() - (m_initAngle + 180);
-    // if (Math.abs(angleRemaining) >= VisionConstants.kRotationTolerance) {
-    //   m_drivetrainSubsystem.arcadeDrive(
-    //       0, m_visionSubsystem.getNonlinearRotationalSpeed(angleRemaining));
-    // }
+    if (m_state == m_STATE_DRIVING_TOWARDS_POWERCELL) {
+      // Get the distance to the powercell.
+      double distanceToTarget = m_visionSubsystem.getDistanceToTarget();
 
-    m_finished = true;
+      // Check if the robot is close to the powercell.
+      if (distanceToTarget >= VisionConstants.kDistancePowercellMinimum) {
+        // Drive forward towards the nearest powercell.
+        m_drivetrainSubsystem.arcadeDrive(
+            m_visionSubsystem.getNonlinearSpeed(distanceToTarget, Units.feetToMeters(5)), 0);
+        m_state = m_STATE_DRIVING_TOWARDS_POWERCELL;
+        return;
+      } else m_state = m_STATE_TURN_180;
+    }
+
+    if (m_state == m_STATE_TURN_180) {
+      // Turn 180 degrees
+      double angleRemaining = m_drivetrainSubsystem.getGyroHeading() - (m_initAngle + 180);
+      if (Math.abs(angleRemaining) >= VisionConstants.kRotationTolerance) {
+        m_drivetrainSubsystem.arcadeDrive(
+            0, m_visionSubsystem.getNonlinearRotationalSpeed(angleRemaining));
+        m_state = m_STATE_TURN_180;
+        return;
+      } else {
+        m_state = m_STATE_GRABBING_POWERCELL;
+        m_intakeInitTime = System.currentTimeMillis();
+      }
+    }
+
+    if (m_state == m_STATE_GRABBING_POWERCELL) {
+      if (System.currentTimeMillis() - m_intakeInitTime <= 3000) {
+        m_intakeSubsystem.startIntake(Constants.IntakeConstants.kSpeedIntake);
+        m_intakeSubsystem.startBelt(Constants.IntakeConstants.kSpeedBelt);
+        m_drivetrainSubsystem.arcadeDrive(-0.3, 0);
+        m_state = m_STATE_GRABBING_POWERCELL;
+      } else {
+        m_intakeSubsystem.startIntake(0);
+        m_intakeSubsystem.startBelt(0);
+        m_drivetrainSubsystem.arcadeDrive(0, 0);
+        m_ballCount++;
+        if (m_ballCount < 3) {
+          m_state = m_STATE_SEARCHING;
+        } else {
+          m_state = m_STATE_DRIVING_TOWARDS_END;
+        }
+      }
+    }
+
+    if (m_state == m_STATE_TURNING_TOWARDS_END) {
+      double angleRemaining = m_drivetrainSubsystem.getGyroHeading() - m_absoluteInitAngle;
+      if (Math.abs(angleRemaining) >= VisionConstants.kRotationTolerance) {
+        m_drivetrainSubsystem.arcadeDrive(
+            0, m_visionSubsystem.getNonlinearRotationalSpeed(angleRemaining));
+        m_state = m_STATE_TURNING_TOWARDS_END;
+        return;
+      } else {
+        m_state = m_STATE_DRIVING_TOWARDS_END;
+        m_intakeInitTime = System.currentTimeMillis();
+      }
+    }
+
+    if (m_state == m_STATE_DRIVING_TOWARDS_END) {
+      // DRIVE
+      m_state = m_STATE_DRIVING_TOWARDS_END;
+      return;
+    } else {
+      m_state = m_STATE_FINISHED;
+    }
   }
 
   /** This method is run when the command is done. */
@@ -82,9 +175,25 @@ public class DriveToPowercellCommand extends CommandBase {
     m_drivetrainSubsystem.arcadeDrive(0, 0);
   }
 
+  /**
+   * Gets the state of the command.
+   *
+   * @return the state of the command
+   * @see DriveToPowercellCommand.m_STATE_SEARCHING
+   * @see DriveToPowercellCommand.m_STATE_TURNING
+   * @see DriveToPowercellCommand.m_STATE_DRIVING_TOWARDS_POWERCELL
+   * @see DriveToPowercellCommand.m_STATE_TURN_180
+   * @see DriveToPowercellCommand.m_STATE_GRABBING_POWERCELL
+   * @see DriveToPowercellCommand.m_STATE_DRIVING_TOWARDS_END
+   * @see DriveToPowercellCommand.m_STATE_FINISHED
+   */
+  public int getState() {
+    return m_state;
+  }
+
   /** This method is run to check whether the command is finished. */
   @Override
   public boolean isFinished() {
-    return m_finished;
+    return m_state == m_STATE_FINISHED;
   }
 }
