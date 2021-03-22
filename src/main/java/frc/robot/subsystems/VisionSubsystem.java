@@ -107,10 +107,12 @@ public class VisionSubsystem extends SubsystemBase implements Loggable {
    *
    * @param distance The current distance from the target, in meters.
    * @param minimumDistance The minimum distance the robot should approach the target, in meters.
+   * @param maxSpeed The maximum speed that the robot can drive at. Must be between 0.0 and 1.0, or
+   *     it will be cut off.
    * @return the speed, from 0.0 to 1.0, that the robot should travel at.
    */
-  public double getNonlinearSpeed(double distance, double minimumDistance) {
-    return 0.5 * (1D / (1 + Math.exp(-distance + (minimumDistance * 1.6))));
+  public double getNonlinearSpeed(double distance, double minimumDistance, double maxSpeed) {
+    return (maxSpeed) * (1D / (1 + Math.exp(-(distance - minimumDistance - 2.25) / 0.75)));
   }
 
   /**
@@ -118,11 +120,14 @@ public class VisionSubsystem extends SubsystemBase implements Loggable {
    * we would like to be facing.
    *
    * @param rotation The current offset, in degrees, from the angle we would like to be facing.
-   * @return the rotational speed, from 0.0 to 1.0, that the robot should turn at.
+   * @param maxRotationSpeed The maximum rotation speed that the robot can turn at. Must be between
+   *     0.0 and 1.0, or it will be cut off.
+   * @return the rotational speed, from -maxRotationSpeed to +maxRotationSpeed, that the robot
+   *     should turn at.
    */
-  public double getNonlinearRotationalSpeed(double rotation) {
+  public double getNonlinearRotationalSpeed(double rotation, double maxRotationSpeed) {
     boolean sign = rotation >= 0;
     rotation = Math.abs(rotation);
-    return (sign ? 1 : -1) * (1D / (1 + Math.exp(-(rotation - 90) / 30)));
+    return (sign ? 1 : -1) * (maxRotationSpeed) * (1D / (1 + Math.exp(-(rotation - 90) / 30)));
   }
 }

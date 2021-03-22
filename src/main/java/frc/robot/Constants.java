@@ -297,9 +297,15 @@ public final class Constants {
      *   <li>31 deg arm - 28deg camera = 3deg
      */
     public static final double kPitchCameraHigh = 3;
-    /** The tolerance, in degrees, of the robot when tracking the powercell. */
-    public static final double kRotationTolerance = 1;
     /** The closest distance, in meters, that the robot can be when tracking the powercell. */
     public static final double kDistancePowercellMinimum = Units.feetToMeters(5);
+  }
+
+  /** Constants for the Galactic Search challenge. */
+  public static final class GalacticSearchConstants {
+    /** The speed, from 0.0 to 1.0, that the robot will rotate at to locate a powercell. */
+    public static final double kSearchRotationSpeed = 0.3;
+    /** The tolerance, in degrees, of the robot when turning towards the powercell. */
+    public static final double kTurnPowercellRotationTolerance = 1;
   }
 }

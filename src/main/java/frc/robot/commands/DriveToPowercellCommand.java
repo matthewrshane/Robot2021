@@ -4,12 +4,14 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 
 import frc.robot.Constants;
+import frc.robot.Constants.GalacticSearchConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -68,7 +70,7 @@ public class DriveToPowercellCommand extends CommandBase {
     m_state = m_STATE_SEARCHING;
     m_ballCount = 0;
     m_initAngle = 0;
-    m_absoluteInitAngle = m_drivetrainSubsystem.getGyroHeading();
+    m_absoluteInitAngle = m_drivetrainSubsystem.getHeading();
   }
 
   /** This method is run continously while the command is executed. */
@@ -76,29 +78,6 @@ public class DriveToPowercellCommand extends CommandBase {
   public void execute() {
     // Set the neutral mode of the drive motors to break, for more responsiveness.
     m_drivetrainSubsystem.setNeutralMode(NeutralMode.Brake);
-
-    if (m_state == m_STATE_SEARCHING || m_state == m_STATE_TURNING) {
-      // Check if there is a target detected, if not, slowly turn until we find one.
-      if (!m_visionSubsystem.hasTargets()) {
-        m_drivetrainSubsystem.arcadeDrive(0, 0.3);
-        m_state = m_STATE_SEARCHING;
-        return;
-      } else m_state = m_STATE_TURNING;
-    }
-
-    if (m_state == m_STATE_TURNING) {
-      // Locate the nearest powercell.
-      double rotationToTarget = m_visionSubsystem.getRotationToTarget();
-
-      // Check if we're facing the nearest powercell.
-      if (Math.abs(rotationToTarget) >= VisionConstants.kRotationTolerance) {
-        // Turn towards the nearest powercell.
-        m_drivetrainSubsystem.arcadeDrive(
-            0, m_visionSubsystem.getNonlinearRotationalSpeed(rotationToTarget));
-        m_state = m_STATE_TURNING;
-        return;
-      } else m_state = m_STATE_DRIVING_TOWARDS_POWERCELL;
-    }
 
     if (m_state == m_STATE_DRIVING_TOWARDS_POWERCELL) {
       // Get the distance to the powercell.
@@ -108,7 +87,7 @@ public class DriveToPowercellCommand extends CommandBase {
       if (distanceToTarget >= VisionConstants.kDistancePowercellMinimum) {
         // Drive forward towards the nearest powercell.
         m_drivetrainSubsystem.arcadeDrive(
-            m_visionSubsystem.getNonlinearSpeed(distanceToTarget, Units.feetToMeters(5)), 0);
+            m_visionSubsystem.getNonlinearSpeed(distanceToTarget, Units.feetToMeters(5), 0.5), 0);
         m_state = m_STATE_DRIVING_TOWARDS_POWERCELL;
         return;
       } else m_state = m_STATE_TURN_180;
@@ -116,10 +95,10 @@ public class DriveToPowercellCommand extends CommandBase {
 
     if (m_state == m_STATE_TURN_180) {
       // Turn 180 degrees
-      double angleRemaining = m_drivetrainSubsystem.getGyroHeading() - (m_initAngle + 180);
-      if (Math.abs(angleRemaining) >= VisionConstants.kRotationTolerance) {
+      double angleRemaining = m_drivetrainSubsystem.getHeading() - (m_initAngle + 180);
+      if (Math.abs(angleRemaining) >= GalacticSearchConstants.kTurnPowercellRotationTolerance) {
         m_drivetrainSubsystem.arcadeDrive(
-            0, m_visionSubsystem.getNonlinearRotationalSpeed(angleRemaining));
+            0, m_visionSubsystem.getNonlinearRotationalSpeed(angleRemaining, 0.5));
         m_state = m_STATE_TURN_180;
         return;
       } else {
@@ -148,10 +127,10 @@ public class DriveToPowercellCommand extends CommandBase {
     }
 
     if (m_state == m_STATE_TURNING_TOWARDS_END) {
-      double angleRemaining = m_drivetrainSubsystem.getGyroHeading() - m_absoluteInitAngle;
-      if (Math.abs(angleRemaining) >= VisionConstants.kRotationTolerance) {
+      double angleRemaining = m_drivetrainSubsystem.getHeading() - m_absoluteInitAngle;
+      if (Math.abs(angleRemaining) >= GalacticSearchConstants.kTurnPowercellRotationTolerance) {
         m_drivetrainSubsystem.arcadeDrive(
-            0, m_visionSubsystem.getNonlinearRotationalSpeed(angleRemaining));
+            0, m_visionSubsystem.getNonlinearRotationalSpeed(angleRemaining, 0.5));
         m_state = m_STATE_TURNING_TOWARDS_END;
         return;
       } else {
@@ -161,7 +140,12 @@ public class DriveToPowercellCommand extends CommandBase {
     }
 
     if (m_state == m_STATE_DRIVING_TOWARDS_END) {
-      // DRIVE
+      Pose2d position = m_drivetrainSubsystem.getPose();
+      double distanceToEdge = Units.feetToMeters(30) - position.getX();
+      if (distanceToEdge >= Units.feetToMeters(2.5)) {
+        m_drivetrainSubsystem.arcadeDrive(
+            m_visionSubsystem.getNonlinearSpeed(distanceToEdge, Units.feetToMeters(2.5), 0.5), 0);
+      }
       m_state = m_STATE_DRIVING_TOWARDS_END;
       return;
     } else {
