@@ -96,7 +96,7 @@ public class VisionSubsystem extends SubsystemBase implements Loggable {
   public double getDistanceToTarget() {
     return PhotonUtils.calculateDistanceToTargetMeters(
         VisionConstants.kHeightCameraLow,
-        VisionConstants.kHeightTarget,
+        VisionConstants.kHeightPowercell,
         Units.degreesToRadians(VisionConstants.kPitchCameraLow),
         Units.degreesToRadians(getPitchToTarget()));
   }

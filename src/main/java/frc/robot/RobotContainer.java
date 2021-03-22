@@ -28,8 +28,11 @@ import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.commands.AutoInitCommand;
 import frc.robot.commands.DisabledInitCommand;
+import frc.robot.commands.DriveTowardsPowercellCommand;
 import frc.robot.commands.DriveTrajectoryCommand;
+import frc.robot.commands.SearchForPowercellCommand;
 import frc.robot.commands.TeleopInitCommand;
+import frc.robot.commands.TurnTowardsPowercellCommand;
 import frc.robot.driverinput.F310Controller;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -69,6 +72,15 @@ public class RobotContainer {
           List.of(new Translation2d(1, 1), new Translation2d(2, -1)),
           // End 3 meters straight ahead of where we started, facing forward
           new Pose2d(3, 0, new Rotation2d(0)));
+  // TODO: Search command
+  private final SearchForPowercellCommand searchCommand =
+      new SearchForPowercellCommand(m_drivetrainSubsystem, m_visionSubsystem);
+  // TODO: Turn powercell command
+  private final TurnTowardsPowercellCommand turnPowercellCommand =
+      new TurnTowardsPowercellCommand(m_drivetrainSubsystem, m_visionSubsystem);
+  // TODO: Drive powercell command
+  private final DriveTowardsPowercellCommand drivePowercellCommand =
+      new DriveTowardsPowercellCommand(m_drivetrainSubsystem, m_visionSubsystem);
 
   // Driver Input
 
@@ -91,6 +103,10 @@ public class RobotContainer {
   public RobotContainer() {
     // Configure the automous chooser.
     m_autoChooser.setDefaultOption("Example Autonomous Trajectory", m_exampleAutoCommand);
+    // TODO: Clean up
+    m_autoChooser.addOption("Search", searchCommand);
+    m_autoChooser.addOption("Turn Powercell", turnPowercellCommand);
+    m_autoChooser.addOption("Drive Powercell", drivePowercellCommand);
 
     // Configure default commands.
 

@@ -4,13 +4,14 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 import frc.robot.Constants.GalacticSearchConstants;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 
-public class TurnTowardsPowercellCommand extends CommandBase {
+public class DriveTowardsPowercellCommand extends CommandBase {
 
   // Subsystems
   private final DrivetrainSubsystem m_drivetrainSubsystem;
@@ -23,7 +24,7 @@ public class TurnTowardsPowercellCommand extends CommandBase {
   private boolean m_functioning;
 
   /** Initializes this command. */
-  public TurnTowardsPowercellCommand(
+  public DriveTowardsPowercellCommand(
       DrivetrainSubsystem drivetrainSubsystem, VisionSubsystem visionSubsystem) {
     m_drivetrainSubsystem = drivetrainSubsystem;
     m_visionSubsystem = visionSubsystem;
@@ -47,14 +48,15 @@ public class TurnTowardsPowercellCommand extends CommandBase {
       return;
     }
 
-    // Locate the nearest powercell and its heading.
-    double targetHeading = m_visionSubsystem.getRotationToTarget();
+    // Locate the nearest powercell and its distance.
+    double targetDistance = m_visionSubsystem.getDistanceToTarget();
+    System.out.println(targetDistance);
 
-    // Check if we're facing the nearest powercell.
-    if (Math.abs(targetHeading) >= GalacticSearchConstants.kTurnPowercellRotationTolerance) {
-      // Turn towards the nearest powercell.
+    // Check if the robot is close to the powercell.
+    if (targetDistance >= GalacticSearchConstants.kDrivePowercellDistanceApproach) {
+      // Drive forward towards the nearest powercell.
       m_drivetrainSubsystem.arcadeDrive(
-          0, m_visionSubsystem.getNonlinearRotationalSpeed(targetHeading, 10.0));
+          m_visionSubsystem.getNonlinearSpeed(targetDistance, Units.feetToMeters(5), 5.0), 0);
       return;
     }
     m_finished = true;

@@ -12,7 +12,6 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 
 import frc.robot.Constants;
 import frc.robot.Constants.GalacticSearchConstants;
-import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
@@ -78,20 +77,6 @@ public class DriveToPowercellCommand extends CommandBase {
   public void execute() {
     // Set the neutral mode of the drive motors to break, for more responsiveness.
     m_drivetrainSubsystem.setNeutralMode(NeutralMode.Brake);
-
-    if (m_state == m_STATE_DRIVING_TOWARDS_POWERCELL) {
-      // Get the distance to the powercell.
-      double distanceToTarget = m_visionSubsystem.getDistanceToTarget();
-
-      // Check if the robot is close to the powercell.
-      if (distanceToTarget >= VisionConstants.kDistancePowercellMinimum) {
-        // Drive forward towards the nearest powercell.
-        m_drivetrainSubsystem.arcadeDrive(
-            m_visionSubsystem.getNonlinearSpeed(distanceToTarget, Units.feetToMeters(5), 0.5), 0);
-        m_state = m_STATE_DRIVING_TOWARDS_POWERCELL;
-        return;
-      } else m_state = m_STATE_TURN_180;
-    }
 
     if (m_state == m_STATE_TURN_180) {
       // Turn 180 degrees
