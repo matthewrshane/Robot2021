@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
@@ -50,7 +51,7 @@ public class DriveTowardsPowercellCommand extends CommandBase {
 
     // Locate the nearest powercell and its distance.
     double targetDistance = m_visionSubsystem.getDistanceToTarget();
-    System.out.println(targetDistance);
+    SmartDashboard.putNumber("Distance", targetDistance);
 
     // Check if the robot is close to the powercell.
     if (targetDistance >= GalacticSearchConstants.kDrivePowercellDistanceApproach) {
