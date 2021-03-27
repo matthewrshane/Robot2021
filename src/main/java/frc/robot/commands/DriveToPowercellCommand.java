@@ -10,8 +10,6 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 
-import frc.robot.Constants;
-import frc.robot.Constants.GalacticSearchConstants;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
@@ -77,52 +75,6 @@ public class DriveToPowercellCommand extends CommandBase {
   public void execute() {
     // Set the neutral mode of the drive motors to break, for more responsiveness.
     m_drivetrainSubsystem.setNeutralMode(NeutralMode.Brake);
-
-    if (m_state == m_STATE_TURN_180) {
-      // Turn 180 degrees
-      double angleRemaining = m_drivetrainSubsystem.getHeading() - (m_initAngle + 180);
-      if (Math.abs(angleRemaining) >= GalacticSearchConstants.kTurnPowercellRotationTolerance) {
-        m_drivetrainSubsystem.arcadeDrive(
-            0, m_visionSubsystem.getNonlinearRotationalSpeed(angleRemaining, 0.5));
-        m_state = m_STATE_TURN_180;
-        return;
-      } else {
-        m_state = m_STATE_GRABBING_POWERCELL;
-        m_intakeInitTime = System.currentTimeMillis();
-      }
-    }
-
-    if (m_state == m_STATE_GRABBING_POWERCELL) {
-      if (System.currentTimeMillis() - m_intakeInitTime <= 3000) {
-        m_intakeSubsystem.startIntake(Constants.IntakeConstants.kSpeedIntake);
-        m_intakeSubsystem.startBelt(Constants.IntakeConstants.kSpeedBelt);
-        m_drivetrainSubsystem.arcadeDrive(-0.3, 0);
-        m_state = m_STATE_GRABBING_POWERCELL;
-      } else {
-        m_intakeSubsystem.startIntake(0);
-        m_intakeSubsystem.startBelt(0);
-        m_drivetrainSubsystem.arcadeDrive(0, 0);
-        m_ballCount++;
-        if (m_ballCount < 3) {
-          m_state = m_STATE_SEARCHING;
-        } else {
-          m_state = m_STATE_DRIVING_TOWARDS_END;
-        }
-      }
-    }
-
-    if (m_state == m_STATE_TURNING_TOWARDS_END) {
-      double angleRemaining = m_drivetrainSubsystem.getHeading() - m_absoluteInitAngle;
-      if (Math.abs(angleRemaining) >= GalacticSearchConstants.kTurnPowercellRotationTolerance) {
-        m_drivetrainSubsystem.arcadeDrive(
-            0, m_visionSubsystem.getNonlinearRotationalSpeed(angleRemaining, 0.5));
-        m_state = m_STATE_TURNING_TOWARDS_END;
-        return;
-      } else {
-        m_state = m_STATE_DRIVING_TOWARDS_END;
-        m_intakeInitTime = System.currentTimeMillis();
-      }
-    }
 
     if (m_state == m_STATE_DRIVING_TOWARDS_END) {
       Pose2d position = m_drivetrainSubsystem.getPose();

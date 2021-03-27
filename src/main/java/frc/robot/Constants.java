@@ -306,6 +306,6 @@ public final class Constants {
     /** The tolerance, in degrees, of the robot when turning towards the powercell. */
     public static final double kTurnPowercellRotationTolerance = 1;
     /** The closest distance, in meters, that the robot can be when approaching the powercell. */
-    public static final double kDrivePowercellDistanceApproach = Units.feetToMeters(10);
+    public static final double kDrivePowercellDistanceApproach = Units.feetToMeters(1);
   }
 }

@@ -4,17 +4,13 @@
 
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import io.github.oblarg.oblog.Loggable;
 
-import frc.robot.Constants.VisionConstants;
-
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPipelineResult;
 import org.photonvision.PhotonTrackedTarget;
-import org.photonvision.PhotonUtils;
 
 /**
  * Represents the vision subsystem.
@@ -94,11 +90,14 @@ public class VisionSubsystem extends SubsystemBase implements Loggable {
    * @return the distance, in meters, or null if there is no tracked target.
    */
   public double getDistanceToTarget() {
-    return PhotonUtils.calculateDistanceToTargetMeters(
-        VisionConstants.kHeightCameraLow,
-        VisionConstants.kHeightPowercell,
-        Units.degreesToRadians(VisionConstants.kPitchCameraLow),
-        Units.degreesToRadians(getPitchToTarget()));
+    return hasTargets()
+        ? (7 * 700.8) / Math.sqrt(getLatestResult().getBestTarget().getArea() * 320 * 240 * 0.01)
+        : null;
+    // return PhotonUtils.calculateDistanceToTargetMeters(
+    //     VisionConstants.kHeightCameraLow,
+    //     VisionConstants.kHeightPowercell,
+    //     Units.degreesToRadians(VisionConstants.kPitchCameraLow),
+    //     Units.degreesToRadians(getPitchToTarget()));
   }
 
   /**
