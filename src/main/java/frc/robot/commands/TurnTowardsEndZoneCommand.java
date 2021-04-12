@@ -45,11 +45,6 @@ public class TurnTowardsEndZoneCommand extends CommandBase {
   /** This method is run continously while the command is executed. */
   @Override
   public void execute() {
-    if (!m_visionSubsystem.hasTargets()) {
-      m_functioning = false;
-      return;
-    }
-
     double angleRemaining = m_drivetrainSubsystem.getHeading() - m_absoluteInitAngle;
     if (Math.abs(angleRemaining) >= GalacticSearchConstants.kTurnPowercellRotationTolerance) {
       m_drivetrainSubsystem.arcadeDrive(

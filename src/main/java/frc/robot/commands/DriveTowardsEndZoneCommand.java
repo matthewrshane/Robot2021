@@ -4,19 +4,17 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
-import frc.robot.Constants;
 import frc.robot.subsystems.DrivetrainSubsystem;
-import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 
-public class GrabPowercellCommand extends CommandBase {
+public class DriveTowardsEndZoneCommand extends CommandBase {
 
   // Subsystems
   private final DrivetrainSubsystem m_drivetrainSubsystem;
   private final VisionSubsystem m_visionSubsystem;
-  private final IntakeSubsystem m_intakeSubsystem;
 
   // Is the command finished.
   private boolean m_finished;
@@ -24,21 +22,14 @@ public class GrabPowercellCommand extends CommandBase {
   // Is the command functioning properly.
   private boolean m_functioning;
 
-  // Initial time for intaking the powercell
-  long m_intakeInitTime;
-
   /** Initializes this command. */
-  public GrabPowercellCommand(
-      DrivetrainSubsystem drivetrainSubsystem,
-      VisionSubsystem visionSubsystem,
-      IntakeSubsystem intakeSubsystem) {
+  public DriveTowardsEndZoneCommand(
+      DrivetrainSubsystem drivetrainSubsystem, VisionSubsystem visionSubsystem) {
     m_drivetrainSubsystem = drivetrainSubsystem;
     m_visionSubsystem = visionSubsystem;
-    m_intakeSubsystem = intakeSubsystem;
 
     addRequirements(m_drivetrainSubsystem);
     addRequirements(m_visionSubsystem);
-    addRequirements(m_intakeSubsystem);
   }
 
   /** This method is run once when the command is first executed. */
@@ -46,21 +37,19 @@ public class GrabPowercellCommand extends CommandBase {
   public void initialize() {
     m_finished = false;
     m_functioning = true;
-
-    m_intakeInitTime = System.currentTimeMillis();
   }
 
   /** This method is run continously while the command is executed. */
   @Override
   public void execute() {
-    if (System.currentTimeMillis() - m_intakeInitTime <= 3000) {
-      m_intakeSubsystem.startIntake(Constants.IntakeConstants.kSpeedIntake);
-      m_intakeSubsystem.startBelt(Constants.IntakeConstants.kSpeedBelt);
-      m_drivetrainSubsystem.arcadeDrive(-0.3, 0);
-    } else {
-      m_intakeSubsystem.startIntake(0);
-      m_intakeSubsystem.startBelt(0);
-      m_drivetrainSubsystem.arcadeDrive(0, 0);
+    double x = m_drivetrainSubsystem.getPose().getX();
+
+    // Check if the robot is at the wall yet.
+    if (x <= 27.5) {
+      // Drive forward towards the nearest powercell.
+      m_drivetrainSubsystem.arcadeDrive(
+          m_visionSubsystem.getNonlinearSpeed(27.5 - x, Units.feetToMeters(0), 5.0), 0);
+      return;
     }
     m_finished = true;
   }
